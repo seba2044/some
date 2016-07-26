@@ -9,11 +9,13 @@ import (
 	"unicode"
 )
 
+//Tree
 type Node struct {
 	value []interface{}
 	child []*Node
 }
 
+//Print tree
 func (n *Node) Print(k int) (s string) {
 	var tmp string
 	tmp = ""
@@ -36,6 +38,8 @@ func (n *Node) Print(k int) (s string) {
 
 	return s
 }
+
+//Find tree in key
 func (n *Node) Find(key interface{}) (out []*Node) {
 	if n.value[0] == key {
 		out = append(out, n)
@@ -47,17 +51,22 @@ func (n *Node) Find(key interface{}) (out []*Node) {
 	return
 }
 
+//Prser stack
 type stack struct {
 	s []interface{}
 }
 
+//Stack constructor
 func newStack() *stack {
 	return &stack{make([]interface{}, 0)}
 }
+
+//push value on stack
 func (s *stack) Push(v interface{}) {
 	s.s = append(s.s, v)
 }
 
+//Pop value from stack
 func (s *stack) Pop() (out interface{}) {
 	l := len(s.s)
 	if l == 0 {
@@ -68,11 +77,13 @@ func (s *stack) Pop() (out interface{}) {
 	}
 	return
 }
+
+//Return index of top value
 func (s *stack) top() (size int) {
 	return len(s.s)
 }
 
-//
+//Open file as str
 func load_file(path string) (out string) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -120,6 +131,8 @@ func get_tok(s string) (tok interface{}, remainder string) {
 	}
 	return //errors.New("Undefined error."), ""
 }
+
+//Parse data, return tree
 func sExp_Parse(data string) *Node {
 
 	var token interface{}
