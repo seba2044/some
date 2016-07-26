@@ -51,6 +51,20 @@ func (n *Node) Find(key interface{}) (out []*Node) {
 	return
 }
 
+// have to finish it
+//Find path in tree
+func (n *Node) FindPath(path []interface{}) (out *Node) {
+	if n.value[0] == path[0] {
+		out = n
+		for i := 0; i < len(n.child); i++ {
+			out = n.child[i].FindPath(path[1:])
+		}
+	} else {
+		return nil
+	}
+	return out
+}
+
 //Prser stack
 type stack struct {
 	s []interface{}
@@ -145,7 +159,7 @@ func sExp_Parse(data string) *Node {
 		case nil: //comment
 			//fmt.Println("NIL:", token)
 		case error:
-			return tree
+			panic(token)
 		case string:
 			//fmt.Println("NAPIS:", token)
 			if token == "(" {
