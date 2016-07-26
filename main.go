@@ -9,19 +9,49 @@ import (
 	"unicode"
 )
 
-type stack []interface{}
-
-func (s stack) Push(v interface{}) stack {
-	return append(s, v)
+type Node struct {
+	value []interface{}
+	child []*Node
 }
 
-func (s stack) Pop() (stack, interface{}) {
-	l := len(s)
-	if l == 0 {
-		return nil, nil
-	} else {
-		return s[:l-1], s[l-1]
+func (n *Node) node_print(k int) (s string) {
+	var tmp string
+	tmp = ""
+	for i := 0; i < len(n.child); i++ {
+		tmp = fmt.Sprintf("%s%s", tmp, n.child[i].node_print(k+1))
 	}
+	if tmp != "" {
+		s = fmt.Sprintf("(%s\n%s)", n.value, tmp)
+	} else {
+		s = fmt.Sprintf("(%s%s)\n", n.value, tmp)
+	}
+	for i := 0; i < k; i++ {
+		s = fmt.Sprintf("\t%s", s)
+	}
+
+	return s
+}
+
+type stack struct {
+	s []interface{}
+}
+
+func newStack() *stack {
+	return &stack{make([]interface{}, 0)}
+}
+func (s *stack) Push(v interface{}) {
+	s.s = append(s.s, v)
+}
+
+func (s *stack) Pop() (out interface{}) {
+	l := len(s.s)
+	if l == 0 {
+		out = errors.New("Empty stack")
+	} else {
+		out = s.s[l-1]
+		s.s = s.s[0 : l-1]
+	}
+	return
 }
 
 //
@@ -76,24 +106,56 @@ func main() {
 
 	var token interface{}
 	data := load_file("key.cfg")
+	st := newStack()
+	var tree *Node
+	st.Push(tree)
+	tree = &Node{make([]interface{}, 0), nil}
 	for len(data) > 0 {
 		token, data = get_tok(data)
 		switch token.(type) {
-		case nil:
-			fmt.Println("NIL:", token)
+		case nil: //comment
+			//fmt.Println("NIL:", token)
 		case error:
 			break
 		case string:
-			fmt.Println("NAPIS:", token)
+			//fmt.Println("NAPIS:", token)
+			if token == "(" {
+				st.Push(token)
+				node := &Node{make([]interface{}, 0), nil}
+				st.Push(node)
+				tree.child = append(tree.child, node)
+				tree = node
+			} else if token == ")" {
+				st.Pop()
+				st.Pop()
+				if (len(st.s)-1) > 0 && st.s[len(st.s)-1] != nil {
+					tmp_node, isNode := st.s[len(st.s)-1].(*Node)
+					if isNode {
+						tree = tmp_node
+					}
+				}
+			} else {
+				if (len(st.s)-1) > 0 && st.s[len(st.s)-1] != nil {
+					//how to append
+					st.s[len(st.s)-1].(*Node).value = append(st.s[len(st.s)-1].(*Node).value, token)
+				}
+			}
 		case int:
-			fmt.Println("INT:", token)
+			//fmt.Println("INT:", token)
+			st.s[len(st.s)-1].(*Node).value = append(st.s[len(st.s)-1].(*Node).value, token)
+			//st.Push(token)
 		case float64:
-			fmt.Println("F64:", token)
+			//fmt.Println("F64:", token)
+			st.s[len(st.s)-1].(*Node).value = append(st.s[len(st.s)-1].(*Node).value, token)
+			//st.Push(token)
 		case float32:
-			fmt.Println("F32:", token)
+			//fmt.Println("F32:", token)
+			st.s[len(st.s)-1].(*Node).value = append(st.s[len(st.s)-1].(*Node).value, token)
+			//st.Push(token)
 		default:
 			fmt.Println("DEF:", token)
 		}
 	}
+	fmt.Println(tree.node_print(0))
 
 }
