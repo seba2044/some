@@ -165,7 +165,9 @@ func main() {
 			st.s[len(st.s)-1].(*Node).value = append(st.s[len(st.s)-1].(*Node).value, token)
 			//st.Push(token)
 		default:
-			fmt.Println("DEF:", token)
+			//fmt.Println("DEF:", token)
+			err := errors.New(fmt.Sprintf("Undefined token: %v", token))
+			panic(err)
 		}
 	}
 	if st.top() != 0 {
