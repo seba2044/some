@@ -31,6 +31,16 @@ func (n *Node) node_print(k int) (s string) {
 
 	return s
 }
+func (n *Node) node_find(key interface{}) (out []*Node) {
+	if n.value[0] == key {
+		out = append(out, n)
+	} else {
+		for i := 0; i < len(n.child); i++ {
+			out = append(out, n.child[i].node_find(key)...)
+		}
+	}
+	return
+}
 
 type stack struct {
 	s []interface{}
@@ -52,6 +62,9 @@ func (s *stack) Pop() (out interface{}) {
 		s.s = s.s[0 : l-1]
 	}
 	return
+}
+func (s *stack) top() (size int) {
+	return len(s.s)
 }
 
 //
@@ -108,7 +121,6 @@ func main() {
 	data := load_file("key.cfg")
 	st := newStack()
 	var tree *Node
-	st.Push(tree)
 	tree = &Node{make([]interface{}, 0), nil}
 	for len(data) > 0 {
 		token, data = get_tok(data)
@@ -156,6 +168,11 @@ func main() {
 			fmt.Println("DEF:", token)
 		}
 	}
-	fmt.Println(tree.node_print(0))
+	if st.top() != 0 {
+		err := errors.New(fmt.Sprintf("Stack isn't empty, on stack:%s , parse error.", st.top()))
+		panic(err)
+	}
 
+	fmt.Println(tree.node_print(0))
+	fmt.Println(tree.node_find("cos")[0].node_print(0))
 }
