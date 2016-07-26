@@ -199,5 +199,5 @@ func main() {
 	data := load_file("key.cfg")
 	tree := sExp_Parse(data)
 	fmt.Println(tree.Print(0))
-	fmt.Println(tree.Find("cos")[0].Print(0))
+	fmt.Println(tree.Find("ctrl")[0].Print(0))
 }
