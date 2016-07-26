@@ -14,14 +14,19 @@ type Node struct {
 	child []*Node
 }
 
-func (n *Node) node_print(k int) (s string) {
+func (n *Node) Print(k int) (s string) {
 	var tmp string
 	tmp = ""
 	for i := 0; i < len(n.child); i++ {
-		tmp = fmt.Sprintf("%s%s", tmp, n.child[i].node_print(k+1))
+		tmp = fmt.Sprintf("%s%s", tmp, n.child[i].Print(k+1))
 	}
 	if tmp != "" {
-		s = fmt.Sprintf("(%s\n%s)", n.value, tmp)
+		s = fmt.Sprintf("(%s\n%s", n.value, tmp)
+		for i := 0; i < k; i++ {
+			s = fmt.Sprintf("%s\t", s)
+		}
+		s = fmt.Sprintf("%s)\n", s)
+
 	} else {
 		s = fmt.Sprintf("(%s%s)\n", n.value, tmp)
 	}
@@ -31,12 +36,12 @@ func (n *Node) node_print(k int) (s string) {
 
 	return s
 }
-func (n *Node) node_find(key interface{}) (out []*Node) {
+func (n *Node) Find(key interface{}) (out []*Node) {
 	if n.value[0] == key {
 		out = append(out, n)
 	} else {
 		for i := 0; i < len(n.child); i++ {
-			out = append(out, n.child[i].node_find(key)...)
+			out = append(out, n.child[i].Find(key)...)
 		}
 	}
 	return
@@ -115,10 +120,9 @@ func get_tok(s string) (tok interface{}, remainder string) {
 	}
 	return //errors.New("Undefined error."), ""
 }
-func main() {
+func sExp_Parse(data string) *Node {
 
 	var token interface{}
-	data := load_file("key.cfg")
 	st := newStack()
 	var tree *Node
 	tree = &Node{make([]interface{}, 0), nil}
@@ -128,7 +132,7 @@ func main() {
 		case nil: //comment
 			//fmt.Println("NIL:", token)
 		case error:
-			break
+			return tree
 		case string:
 			//fmt.Println("NAPIS:", token)
 			if token == "(" {
@@ -175,6 +179,12 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(tree.node_print(0))
-	fmt.Println(tree.node_find("cos")[0].node_print(0))
+	return tree
+}
+func main() {
+
+	data := load_file("key.cfg")
+	tree := sExp_Parse(data)
+	fmt.Println(tree.Print(0))
+	fmt.Println(tree.Find("cos")[0].Print(0))
 }
